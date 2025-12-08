@@ -252,35 +252,6 @@ export default function PostAd() {
     })
   }
 
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {}
-    
-    if (!formData.name.trim()) {
-      newErrors.name = t('postAd.nameRequired')
-    }
-    if (!formData.country) {
-      newErrors.country = t('postAd.countryRequired')
-    }
-    if (!formData.city.trim()) {
-      newErrors.city = t('postAd.cityRequired')
-    }
-    if (!formData.age || parseInt(formData.age) < 18) {
-      newErrors.age = t('postAd.ageInvalid')
-    }
-    if (!formData.phone.trim()) {
-      newErrors.phone = t('postAd.nameRequired') // Using nameRequired as placeholder, need to add phoneRequired
-    }
-    if (!formData.description.trim() || formData.description.trim().length < 50) {
-      newErrors.description = t('postAd.descriptionMinLength')
-    }
-    if (formData.images.length < 3) {
-      newErrors.images = t('postAd.imagesRequired')
-    }
-    
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
   return (
     <main className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors">
       {/* Header */}
