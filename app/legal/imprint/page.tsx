@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useTheme } from '../../providers'
+import { useTheme, useLanguage } from '../../providers'
+import Footer from '../../components/Footer'
+import LanguageSwitcher from '../../components/LanguageSwitcher'
 
 interface ContactSubmission {
   id: string
@@ -15,6 +17,7 @@ interface ContactSubmission {
 
 export default function Imprint() {
   const { theme, toggleTheme } = useTheme()
+  const { t } = useLanguage()
   const [formData, setFormData] = useState({
     name: '',
     subject: '',
@@ -27,13 +30,13 @@ export default function Imprint() {
     const newErrors: Record<string, string> = {}
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Name is required'
+      newErrors.name = t('contact.nameRequired')
     }
     if (!formData.subject.trim()) {
-      newErrors.subject = 'Subject is required'
+      newErrors.subject = t('contact.subjectRequired')
     }
     if (!formData.description.trim() || formData.description.trim().length < 10) {
-      newErrors.description = 'Description must be at least 10 characters'
+      newErrors.description = t('contact.descriptionRequired')
     }
 
     setErrors(newErrors)
@@ -93,6 +96,8 @@ export default function Imprint() {
             ESCORT.DE
           </Link>
           <div className="flex items-center gap-2">
+            {/* Language Switcher */}
+            <LanguageSwitcher />
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
@@ -104,14 +109,14 @@ export default function Imprint() {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                   </svg>
-                  <span className="hidden sm:inline">Light</span>
+                  <span className="hidden sm:inline">{t('header.light')}</span>
                 </>
               ) : (
                 <>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                   </svg>
-                  <span className="hidden sm:inline">Dark</span>
+                  <span className="hidden sm:inline">{t('header.dark')}</span>
                 </>
               )}
             </button>
@@ -119,7 +124,7 @@ export default function Imprint() {
               href="/"
               className="px-4 py-2 border border-[var(--border-primary)] hover:border-[var(--accent-pink)] transition-colors"
             >
-              Back to Home
+              {t('header.backToHome')}
             </Link>
           </div>
         </div>
@@ -127,28 +132,28 @@ export default function Imprint() {
 
       {/* Content */}
       <div className="container mx-auto px-4 py-12 max-w-4xl">
-        <h1 className="text-3xl font-header font-semibold mb-4 text-[var(--text-primary)] transition-colors">Imprint</h1>
+        <h1 className="text-3xl font-header font-semibold mb-4 text-[var(--text-primary)] transition-colors">{t('contact.title')}</h1>
         
         <div className="mb-8 text-[var(--text-secondary)] transition-colors">
           <p className="mb-4">
-            This website is operated by Escort.de. For legal inquiries, reports, or feedback, please use the contact form below.
+            {t('contact.description')}
           </p>
         </div>
 
         <div className="border-t border-[var(--border-primary)] pt-8 transition-colors">
-          <h2 className="text-2xl font-header font-semibold mb-6 text-[var(--text-primary)] transition-colors">Contact Form</h2>
+          <h2 className="text-2xl font-header font-semibold mb-6 text-[var(--text-primary)] transition-colors">{t('contact.formTitle')}</h2>
 
           {submitted ? (
             <div className="border border-green-500 bg-green-500/10 p-6 mb-6">
               <p className="text-green-600 dark:text-green-400 transition-colors">
-                Thank you! Your message has been received. We'll review it and get back to you soon.
+                {t('contact.submitted')}
               </p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="name" className="block text-sm text-[var(--text-secondary)] mb-2 transition-colors">
-                  Name *
+                  {t('contact.name')} *
                 </label>
                 <input
                   type="text"
@@ -165,7 +170,7 @@ export default function Imprint() {
 
               <div>
                 <label htmlFor="subject" className="block text-sm text-[var(--text-secondary)] mb-2 transition-colors">
-                  Subject *
+                  {t('contact.subject')} *
                 </label>
                 <input
                   type="text"
@@ -182,7 +187,7 @@ export default function Imprint() {
 
               <div>
                 <label htmlFor="description" className="block text-sm text-[var(--text-secondary)] mb-2 transition-colors">
-                  Description *
+                  {t('contact.message')} *
                 </label>
                 <textarea
                   id="description"
@@ -204,7 +209,7 @@ export default function Imprint() {
                 type="submit"
                 className="w-full px-6 py-3 bg-[var(--accent-pink)] text-white hover:opacity-90 transition-opacity font-medium"
               >
-                Submit
+                {t('contact.submit')}
               </button>
             </form>
           )}
@@ -212,11 +217,7 @@ export default function Imprint() {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-[var(--border-primary)] mt-20 transition-colors">
-        <div className="container mx-auto px-4 py-8 text-center text-[var(--text-tertiary)] text-sm transition-colors">
-          <p>© 2025 Escort.de. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
     </main>
   )
 }

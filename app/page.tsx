@@ -4,7 +4,9 @@ import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useTheme } from './providers'
+import { useTheme, useLanguage } from './providers'
+import Footer from './components/Footer'
+import LanguageSwitcher from './components/LanguageSwitcher'
 
 interface Service {
   name: string
@@ -359,6 +361,7 @@ function HomeContent() {
   }, [selectedCountry, models, selectedCity])
 
   const { theme, toggleTheme } = useTheme()
+  const { t } = useLanguage()
 
   return (
     <main className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors">
@@ -367,6 +370,8 @@ function HomeContent() {
         <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-4 flex justify-between items-center gap-2">
           <h1 className="text-xl sm:text-2xl font-header font-semibold tracking-wider text-[var(--header-color)]">ESCORT.DE</h1>
           <div className="flex items-center gap-2">
+            {/* Language Switcher */}
+            <LanguageSwitcher />
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
@@ -378,14 +383,14 @@ function HomeContent() {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                   </svg>
-                  <span className="hidden sm:inline">Light</span>
+                  <span className="hidden sm:inline">{t('header.light')}</span>
                 </>
               ) : (
                 <>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                   </svg>
-                  <span className="hidden sm:inline">Dark</span>
+                  <span className="hidden sm:inline">{t('header.dark')}</span>
                 </>
               )}
             </button>
@@ -393,7 +398,7 @@ function HomeContent() {
               href="/post-ad"
               className="px-3 sm:px-6 py-1.5 sm:py-2 bg-[var(--accent-pink)] text-white hover:opacity-90 transition-opacity font-medium text-sm sm:text-base"
             >
-              Post Ad
+              {t('header.postAd')}
             </Link>
           </div>
         </div>
@@ -414,7 +419,7 @@ function HomeContent() {
                 }`}
               >
                 <span className="w-2 h-2 rounded-full bg-gray-300 flex-shrink-0"></span>
-                <span>Girls</span>
+                <span>{t('filters.girls')}</span>
               </button>
               <button
                 onClick={() => setSelectedGender(selectedGender === 'male' ? '' : 'male')}
@@ -425,7 +430,7 @@ function HomeContent() {
                 }`}
               >
                 <span className="w-2 h-2 rounded-full bg-gray-300 flex-shrink-0"></span>
-                <span>Guys</span>
+                <span>{t('filters.guys')}</span>
               </button>
               <button
                 onClick={() => setSelectedGender(selectedGender === 'trans' ? '' : 'trans')}
@@ -436,14 +441,14 @@ function HomeContent() {
                 }`}
               >
                 <span className="w-2 h-2 rounded-full bg-gray-300 flex-shrink-0"></span>
-                <span>Trans</span>
+                <span>{t('filters.trans')}</span>
               </button>
             </div>
           </div>
 
           {/* Country List with Flags */}
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-3">Countries</h3>
+            <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-3">{t('filters.countries')}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
               {availableCountries.map(country => {
                 const countryCount = models.filter(m => m.country === country).length
@@ -512,7 +517,7 @@ function HomeContent() {
           {/* City List with Flags */}
           {availableCities.length > 0 && (
             <div className="space-y-2">
-              <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-3">Cities</h3>
+              <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-3">{t('filters.cities')}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                 {availableCities.map(city => {
                   // Find the country for this city
@@ -589,20 +594,20 @@ function HomeContent() {
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         {loading ? (
           <div className="text-center py-20">
-            <p className="text-gray-400">Detecting your location...</p>
+            <p className="text-gray-400">{t('home.detectingLocation')}</p>
           </div>
         ) : (
           <>
             {userLocation && (
               <p className="text-xs sm:text-sm text-[var(--text-tertiary)] mb-3 sm:mb-6 px-1 transition-colors">
-                Showing models closest to your location
+                {t('home.showingClosest')}
                 {userLocation.city && ` (${userLocation.city}${userLocation.country ? `, ${userLocation.country}` : ''})`}
               </p>
             )}
 
             {filteredModels.length === 0 ? (
               <div className="text-center py-20">
-                <p className="text-[var(--text-secondary)] transition-colors">No models found matching your filters.</p>
+                <p className="text-[var(--text-secondary)] transition-colors">{t('home.noModelsFound')}</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-4">
@@ -681,7 +686,7 @@ function HomeContent() {
                         <p className="text-gray-400 text-xs sm:text-sm mb-0.5 sm:mb-1 font-light">{model.city}, {model.country}</p>
                         {model.distance !== undefined && (
                           <p className="text-gray-500 text-[10px] sm:text-xs mt-1 sm:mt-2 font-light">
-                            {model.distance.toFixed(1)} km away
+                            {model.distance.toFixed(1)} {t('home.kmAway')}
                           </p>
                         )}
                       </div>
@@ -695,20 +700,18 @@ function HomeContent() {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-gray-800 mt-20">
-        <div className="container mx-auto px-4 py-8 text-center text-gray-500 text-sm">
-          <p>© 2025 Escort.de. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
     </main>
   )
 }
 
 export default function Home() {
+  const { t } = useLanguage()
+  
   return (
     <Suspense fallback={
       <main className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors flex items-center justify-center">
-        <p className="text-[var(--text-secondary)]">Loading...</p>
+        <p className="text-[var(--text-secondary)]">{t('common.loading')}</p>
       </main>
     }>
       <HomeContent />

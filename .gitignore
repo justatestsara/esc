@@ -34,3 +34,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# deployment files (keep scripts but ignore logs)
+*.log
+deploy.log
+
+# archives
+*.rar
+*.zip
+escort-de/
+

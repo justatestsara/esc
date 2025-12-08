@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Montserrat, Open_Sans } from 'next/font/google'
-import { ThemeProvider } from './providers'
+import { ThemeProvider, LanguageProvider } from './providers'
 import './globals.css'
 
 // Geometric sans-serif for headings
@@ -28,9 +28,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${montserrat.variable} ${openSans.variable}`}>
+    <html lang="de" className={`${montserrat.variable} ${openSans.variable}`}>
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <LanguageProvider>{children}</LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

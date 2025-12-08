@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useParams, useSearchParams } from 'next/navigation'
-import { useTheme } from '../../providers'
+import { useTheme, useLanguage } from '../../providers'
+import Footer from '../../components/Footer'
+import LanguageSwitcher from '../../components/LanguageSwitcher'
 
 interface Service {
   name: string
@@ -49,6 +51,7 @@ const SAMPLE_MODELS: Model[] = [] // Empty - ready for real ads
 export default function AdDetail() {
   const params = useParams()
   const searchParams = useSearchParams()
+  const { t } = useLanguage()
   const [model, setModel] = useState<Model | null>(null)
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [distance, setDistance] = useState<number | null>(null)
@@ -164,16 +167,19 @@ export default function AdDetail() {
             <Link href="/" className="text-2xl font-header font-semibold tracking-wider text-[var(--header-color)]">
               ESCORT.DE
             </Link>
-            <Link
-              href={getBackUrl()}
-              className="px-4 py-2 border border-[var(--border-primary)] hover:border-[var(--accent-pink)] transition-colors"
-            >
-              Back to Home
-            </Link>
+            <div className="flex items-center gap-2">
+              <LanguageSwitcher />
+              <Link
+                href={getBackUrl()}
+                className="px-4 py-2 border border-[var(--border-primary)] hover:border-[var(--accent-pink)] transition-colors"
+              >
+                {t('header.backToHome')}
+              </Link>
+            </div>
           </div>
         </header>
         <div className="container mx-auto px-4 py-20 text-center">
-          <p className="text-[var(--text-tertiary)] transition-colors">Ad not found.</p>
+          <p className="text-[var(--text-tertiary)] transition-colors">{t('ad.notFound')}</p>
         </div>
       </main>
     )
@@ -187,12 +193,15 @@ export default function AdDetail() {
             <Link href={getBackUrl()} className="text-2xl font-header font-semibold tracking-wider text-[var(--header-color)]">
               ESCORT.DE
             </Link>
-            <Link
-              href={getBackUrl()}
-              className="px-4 py-2 border border-[var(--border-primary)] hover:border-[var(--accent-pink)] transition-colors"
-            >
-              Back to Home
-            </Link>
+            <div className="flex items-center gap-2">
+              <LanguageSwitcher />
+              <Link
+                href={getBackUrl()}
+                className="px-4 py-2 border border-[var(--border-primary)] hover:border-[var(--accent-pink)] transition-colors"
+              >
+                {t('header.backToHome')}
+              </Link>
+            </div>
         </div>
       </header>
 
@@ -248,7 +257,7 @@ export default function AdDetail() {
               </p>
               {distance !== null && (
                 <p className="text-[var(--text-tertiary)] text-sm font-light transition-colors">
-                  {distance.toFixed(1)} km away
+                  {distance.toFixed(1)} {t('home.kmAway')}
                 </p>
               )}
             </div>
@@ -257,22 +266,22 @@ export default function AdDetail() {
             <div className="border-t border-[var(--border-primary)] pt-6 transition-colors">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-[var(--text-secondary)] text-sm mb-1 font-light transition-colors">Gender</p>
+                  <p className="text-[var(--text-secondary)] text-sm mb-1 font-light transition-colors">{t('ad.gender')}</p>
                   <p className="text-[var(--text-primary)] font-medium capitalize transition-colors">{model.gender}</p>
                 </div>
                 <div>
-                  <p className="text-[var(--text-secondary)] text-sm mb-1 font-light transition-colors">Age</p>
+                  <p className="text-[var(--text-secondary)] text-sm mb-1 font-light transition-colors">{t('ad.age')}</p>
                   <p className="text-[var(--text-primary)] font-medium transition-colors">{model.age}</p>
                 </div>
                 {model.hairColor && (
                   <div>
-                    <p className="text-[var(--text-secondary)] text-sm mb-1 font-light transition-colors">Hair Color</p>
+                    <p className="text-[var(--text-secondary)] text-sm mb-1 font-light transition-colors">{t('ad.hairColor')}</p>
                     <p className="text-[var(--text-primary)] font-medium capitalize transition-colors">{model.hairColor}</p>
                   </div>
                 )}
                 {model.languages && model.languages.length > 0 && (
                   <div>
-                    <p className="text-[var(--text-secondary)] text-sm mb-1 font-light transition-colors">Languages</p>
+                    <p className="text-[var(--text-secondary)] text-sm mb-1 font-light transition-colors">{t('ad.languages')}</p>
                     <p className="text-[var(--text-primary)] font-medium transition-colors">{model.languages.join(', ')}</p>
                   </div>
                 )}
@@ -281,7 +290,7 @@ export default function AdDetail() {
 
             {/* 3. About Section */}
             <div className="border-t border-[var(--border-primary)] pt-6 transition-colors">
-              <h2 className="text-xl font-semibold mb-4 tracking-tight text-[var(--text-primary)] transition-colors">About</h2>
+              <h2 className="text-xl font-semibold mb-4 tracking-tight text-[var(--text-primary)] transition-colors">{t('ad.about')}</h2>
               <p className="text-[var(--text-secondary)] leading-relaxed font-light transition-colors">
                 {model.description || 'Professional companion available for various occasions.'}
               </p>
@@ -289,12 +298,12 @@ export default function AdDetail() {
 
             {/* 4. Contact Section */}
             <div className="border-t border-[var(--border-primary)] pt-6 transition-colors">
-              <h2 className="text-xl font-semibold mb-4 tracking-tight text-[var(--text-primary)] transition-colors">Contact Information</h2>
+              <h2 className="text-xl font-semibold mb-4 tracking-tight text-[var(--text-primary)] transition-colors">{t('ad.contactInfo')}</h2>
               
               <div className="grid grid-cols-2 gap-4">
                 {model.phone && (
                   <div>
-                    <p className="text-[var(--text-secondary)] text-sm mb-1 font-light transition-colors">Phone</p>
+                    <p className="text-[var(--text-secondary)] text-sm mb-1 font-light transition-colors">{t('ad.phone')}</p>
                     <a 
                       href={`tel:${model.phone}`}
                       className="text-[var(--accent-pink)] hover:opacity-80 transition-opacity font-medium flex items-center gap-2"
@@ -309,7 +318,7 @@ export default function AdDetail() {
 
                 {model.whatsapp && (
                   <div>
-                    <p className="text-[var(--text-secondary)] text-sm mb-1 font-light transition-colors">WhatsApp</p>
+                    <p className="text-[var(--text-secondary)] text-sm mb-1 font-light transition-colors">{t('ad.whatsapp')}</p>
                     <a 
                       href={`https://wa.me/${model.whatsapp.replace(/[^0-9]/g, '')}`}
                       target="_blank"
@@ -326,7 +335,7 @@ export default function AdDetail() {
 
                 {model.telegram && (
                   <div>
-                    <p className="text-[var(--text-secondary)] text-sm mb-1 font-light transition-colors">Telegram</p>
+                    <p className="text-[var(--text-secondary)] text-sm mb-1 font-light transition-colors">{t('ad.telegram')}</p>
                     <a 
                       href={model.telegram.startsWith('http') ? model.telegram : `https://t.me/${model.telegram.replace('@', '')}`}
                       target="_blank"
@@ -343,7 +352,7 @@ export default function AdDetail() {
 
                 {model.email && (
                   <div>
-                    <p className="text-[var(--text-secondary)] text-sm mb-1 font-light transition-colors">Email</p>
+                    <p className="text-[var(--text-secondary)] text-sm mb-1 font-light transition-colors">{t('ad.email')}</p>
                     <a 
                       href={`mailto:${model.email}`}
                       className="text-[var(--accent-pink)] hover:opacity-80 transition-opacity font-medium flex items-center gap-2"
@@ -359,7 +368,7 @@ export default function AdDetail() {
 
               {(model.instagram || model.twitter) && (
                 <div className="mt-6">
-                  <p className="text-[var(--text-secondary)] text-sm mb-2 font-light transition-colors">Social Media</p>
+                  <p className="text-[var(--text-secondary)] text-sm mb-2 font-light transition-colors">{t('ad.socialMedia')}</p>
                   <div className="flex flex-wrap gap-3">
                     {model.instagram && (
                       <a 
@@ -395,14 +404,14 @@ export default function AdDetail() {
             {/* 5. Rates Section */}
             {model.rates && model.rates.length > 0 && (
               <div className="border-t border-[var(--border-primary)] pt-6 transition-colors">
-                <h2 className="text-xl font-semibold mb-4 tracking-tight text-[var(--text-primary)] transition-colors">Rates</h2>
+                <h2 className="text-xl font-semibold mb-4 tracking-tight text-[var(--text-primary)] transition-colors">{t('ad.rates')}</h2>
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
                     <thead>
                       <tr className="bg-[var(--bg-secondary)] transition-colors">
-                        <th className="text-left py-3 px-4 text-[var(--text-primary)] font-semibold text-sm transition-colors">Time</th>
-                        <th className="text-center py-3 px-4 text-[var(--text-primary)] font-semibold text-sm transition-colors">Incall</th>
-                        <th className="text-center py-3 px-4 text-[var(--text-primary)] font-semibold text-sm transition-colors">Outcall</th>
+                        <th className="text-left py-3 px-4 text-[var(--text-primary)] font-semibold text-sm transition-colors">{t('postAd.time')}</th>
+                        <th className="text-center py-3 px-4 text-[var(--text-primary)] font-semibold text-sm transition-colors">{t('postAd.incall')}</th>
+                        <th className="text-center py-3 px-4 text-[var(--text-primary)] font-semibold text-sm transition-colors">{t('postAd.outcall')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -434,14 +443,14 @@ export default function AdDetail() {
           {/* Mobile Order: Services last - Full width on mobile, in right column on desktop */}
           {model.services && model.services.length > 0 && (
             <div className="order-3 lg:col-span-2 lg:order-3">
-              <h2 className="text-2xl font-semibold mb-4 tracking-tight text-[var(--text-primary)] transition-colors">Services</h2>
+              <h2 className="text-2xl font-semibold mb-4 tracking-tight text-[var(--text-primary)] transition-colors">{t('ad.services')}</h2>
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="border-b border-[var(--border-primary)] transition-colors">
-                      <th className="text-left py-3 px-4 text-[var(--text-secondary)] font-medium text-sm transition-colors">Services</th>
-                      <th className="text-center py-3 px-4 text-[var(--text-secondary)] font-medium text-sm w-24 transition-colors">Included</th>
-                      <th className="text-center py-3 px-4 text-[var(--text-secondary)] font-medium text-sm w-24 transition-colors">Extra</th>
+                      <th className="text-left py-3 px-4 text-[var(--text-secondary)] font-medium text-sm transition-colors">{t('postAd.services')}</th>
+                      <th className="text-center py-3 px-4 text-[var(--text-secondary)] font-medium text-sm w-24 transition-colors">{t('postAd.included')}</th>
+                      <th className="text-center py-3 px-4 text-[var(--text-secondary)] font-medium text-sm w-24 transition-colors">{t('postAd.extra')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -490,11 +499,7 @@ export default function AdDetail() {
       )}
 
       {/* Footer */}
-      <footer className="border-t border-[var(--border-primary)] mt-20 transition-colors">
-        <div className="container mx-auto px-4 py-8 text-center text-[var(--text-tertiary)] text-sm transition-colors">
-          <p>© 2025 Escort.de. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
     </main>
   )
 }

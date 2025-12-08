@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useTheme } from '../providers'
+import { useTheme, useLanguage } from '../providers'
+import Footer from '../components/Footer'
+import LanguageSwitcher from '../components/LanguageSwitcher'
 
 const ALLOWED_COUNTRIES = [
   'Germany',
@@ -58,34 +60,6 @@ export default function PostAd() {
   const [newRate, setNewRate] = useState({ time: '', incall: '', outcall: '' })
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
 
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {}
-    
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required'
-    }
-    if (!formData.country) {
-      newErrors.country = 'Country is required'
-    }
-    if (!formData.city.trim()) {
-      newErrors.city = 'City is required'
-    }
-    if (!formData.age || parseInt(formData.age) < 18) {
-      newErrors.age = 'Valid age (18+) is required'
-    }
-    if (!formData.phone.trim()) {
-      newErrors.phone = 'Phone is required'
-    }
-    if (!formData.description.trim() || formData.description.trim().length < 50) {
-      newErrors.description = 'Description must be at least 50 characters'
-    }
-    if (formData.images.length < 3) {
-      newErrors.images = 'At least 3 images are required'
-    }
-    
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -248,8 +222,36 @@ export default function PostAd() {
   }
 
   const { theme, toggleTheme } = useTheme()
+  const { t } = useLanguage()
 
-  return (
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {}
+    
+    if (!formData.name.trim()) {
+      newErrors.name = t('postAd.nameRequired')
+    }
+    if (!formData.country) {
+      newErrors.country = t('postAd.countryRequired')
+    }
+    if (!formData.city.trim()) {
+      newErrors.city = t('postAd.cityRequired')
+    }
+    if (!formData.age || parseInt(formData.age) < 18) {
+      newErrors.age = t('postAd.ageInvalid')
+    }
+    if (!formData.phone.trim()) {
+      newErrors.phone = t('postAd.nameRequired') // Using nameRequired as placeholder, need to add phoneRequired
+    }
+    if (!formData.description.trim() || formData.description.trim().length < 50) {
+      newErrors.description = t('postAd.descriptionMinLength')
+    }
+    if (formData.images.length < 3) {
+      newErrors.images = t('postAd.imagesRequired')
+    }
+    
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
     <main className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors">
       {/* Header */}
       <header className="border-b border-[var(--border-primary)] sticky top-0 bg-[var(--bg-primary)]/95 backdrop-blur-sm z-50 transition-colors">
@@ -258,6 +260,8 @@ export default function PostAd() {
             ESCORT.DE
           </Link>
           <div className="flex items-center gap-2">
+            {/* Language Switcher */}
+            <LanguageSwitcher />
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
@@ -269,14 +273,14 @@ export default function PostAd() {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                   </svg>
-                  <span className="hidden sm:inline">Light</span>
+                  <span className="hidden sm:inline">{t('header.light')}</span>
                 </>
               ) : (
                 <>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                   </svg>
-                  <span className="hidden sm:inline">Dark</span>
+                  <span className="hidden sm:inline">{t('header.dark')}</span>
                 </>
               )}
             </button>
@@ -284,7 +288,7 @@ export default function PostAd() {
               href="/"
               className="px-4 py-2 border border-[var(--border-primary)] hover:border-[var(--accent-pink)] transition-colors"
             >
-              Back to Home
+              {t('header.backToHome')}
             </Link>
           </div>
         </div>
@@ -292,17 +296,17 @@ export default function PostAd() {
 
       {/* Form */}
       <div className="container mx-auto px-4 py-12 max-w-4xl">
-        <h1 className="text-3xl font-light mb-8 text-[var(--text-primary)] transition-colors">Post Your Ad</h1>
+        <h1 className="text-3xl font-light mb-8 text-[var(--text-primary)] transition-colors">{t('postAd.title')}</h1>
 
         {submitted ? (
           <div className="border border-green-500 bg-green-500/10 p-6 mb-6">
-            <p className="text-green-600 dark:text-green-400 transition-colors">Thank you! Your ad submission has been received. We'll review it and contact you soon.</p>
+            <p className="text-green-600 dark:text-green-400 transition-colors">{t('postAd.submitted')}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Images Upload */}
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-[var(--text-primary)] border-b border-[var(--border-primary)] pb-2 transition-colors">Photos * (Minimum 3 required)</h2>
+              <h2 className="text-xl font-semibold text-[var(--text-primary)] border-b border-[var(--border-primary)] pb-2 transition-colors">{t('postAd.photos')}</h2>
               
               <div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -331,7 +335,7 @@ export default function PostAd() {
                       <svg className="w-8 h-8 text-[var(--text-tertiary)] mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                       </svg>
-                      <span className="text-xs text-[var(--text-secondary)] text-center px-2">Add Photo</span>
+                      <span className="text-xs text-[var(--text-secondary)] text-center px-2">{t('postAd.addPhoto')}</span>
                       <input
                         type="file"
                         accept="image/*"
@@ -351,12 +355,12 @@ export default function PostAd() {
 
             {/* Basic Information */}
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-[var(--text-primary)] border-b border-[var(--border-primary)] pb-2 transition-colors">Basic Information</h2>
+              <h2 className="text-xl font-semibold text-[var(--text-primary)] border-b border-[var(--border-primary)] pb-2 transition-colors">{t('postAd.basicInfo')}</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="name" className="block text-sm text-[var(--text-secondary)] mb-2 transition-colors">
-                    Name *
+                    {t('postAd.name')}
                   </label>
                   <input
                     type="text"
@@ -372,7 +376,7 @@ export default function PostAd() {
 
                 <div>
                   <label htmlFor="age" className="block text-sm text-[var(--text-secondary)] mb-2 transition-colors">
-                    Age *
+                    {t('postAd.age')}
                   </label>
                   <input
                     type="number"
@@ -389,7 +393,7 @@ export default function PostAd() {
 
                 <div>
                   <label htmlFor="gender" className="block text-sm text-[var(--text-secondary)] mb-2 transition-colors">
-                    Gender *
+                    {t('postAd.gender')}
                   </label>
                   <select
                     id="gender"
@@ -399,15 +403,15 @@ export default function PostAd() {
                     onChange={handleChange}
                     className="w-full px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-primary)] focus:outline-none focus:border-[var(--accent-pink)] text-[var(--text-primary)] transition-colors"
                   >
-                    <option value="female">Female</option>
-                    <option value="male">Male</option>
-                    <option value="trans">Trans</option>
+                    <option value="female">{t('postAd.gender.female')}</option>
+                    <option value="male">{t('postAd.gender.male')}</option>
+                    <option value="trans">{t('postAd.gender.trans')}</option>
                   </select>
                 </div>
 
                 <div>
                   <label htmlFor="hairColor" className="block text-sm text-[var(--text-secondary)] mb-2 transition-colors">
-                    Hair Color
+                    {t('postAd.hairColor')}
                   </label>
                   <select
                     id="hairColor"
@@ -425,7 +429,7 @@ export default function PostAd() {
 
                 <div>
                   <label htmlFor="country" className="block text-sm text-[var(--text-secondary)] mb-2 transition-colors">
-                    Country *
+                    {t('postAd.country')}
                   </label>
                   <select
                     id="country"
@@ -445,7 +449,7 @@ export default function PostAd() {
 
                 <div>
                   <label htmlFor="city" className="block text-sm text-[var(--text-secondary)] mb-2 transition-colors">
-                    City *
+                    {t('postAd.city')}
                   </label>
                   <input
                     type="text"
@@ -488,7 +492,7 @@ export default function PostAd() {
 
               <div>
                 <label htmlFor="description" className="block text-sm text-[var(--text-secondary)] mb-2 transition-colors">
-                  Description * (Minimum 50 characters)
+                  {t('postAd.description')} (Minimum 50 characters)
                 </label>
                 <textarea
                   id="description"
@@ -511,12 +515,12 @@ export default function PostAd() {
 
             {/* Contact Information */}
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-[var(--text-primary)] border-b border-[var(--border-primary)] pb-2 transition-colors">Contact Information</h2>
+              <h2 className="text-xl font-semibold text-[var(--text-primary)] border-b border-[var(--border-primary)] pb-2 transition-colors">{t('postAd.contact')}</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="phone" className="block text-sm text-[var(--text-secondary)] mb-2 transition-colors">
-                    Phone *
+                    {t('postAd.phone')} *
                   </label>
                   <input
                     type="tel"
@@ -533,7 +537,7 @@ export default function PostAd() {
 
                 <div>
                   <label htmlFor="whatsapp" className="block text-sm text-[var(--text-secondary)] mb-2 transition-colors">
-                    WhatsApp
+                    {t('postAd.whatsapp')}
                   </label>
                   <input
                     type="tel"
@@ -548,7 +552,7 @@ export default function PostAd() {
 
                 <div>
                   <label htmlFor="email" className="block text-sm text-[var(--text-secondary)] mb-2 transition-colors">
-                    Email
+                    {t('postAd.email')}
                   </label>
                   <input
                     type="email"
@@ -562,7 +566,7 @@ export default function PostAd() {
 
                 <div>
                   <label htmlFor="telegram" className="block text-sm text-[var(--text-secondary)] mb-2 transition-colors">
-                    Telegram
+                    {t('postAd.telegram')}
                   </label>
                   <input
                     type="text"
@@ -577,7 +581,7 @@ export default function PostAd() {
 
                 <div>
                   <label htmlFor="instagram" className="block text-sm text-[var(--text-secondary)] mb-2 transition-colors">
-                    Instagram
+                    {t('postAd.instagram')}
                   </label>
                   <input
                     type="text"
@@ -592,7 +596,7 @@ export default function PostAd() {
 
                 <div>
                   <label htmlFor="twitter" className="block text-sm text-[var(--text-secondary)] mb-2 transition-colors">
-                    Twitter
+                    {t('postAd.twitter')}
                   </label>
                   <input
                     type="text"
@@ -609,7 +613,7 @@ export default function PostAd() {
 
             {/* Services */}
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-[var(--text-primary)] border-b border-[var(--border-primary)] pb-2 transition-colors">Services</h2>
+              <h2 className="text-xl font-semibold text-[var(--text-primary)] border-b border-[var(--border-primary)] pb-2 transition-colors">{t('postAd.services')}</h2>
               
               {formData.services.length > 0 && (
                 <div className="space-y-2">
@@ -618,7 +622,7 @@ export default function PostAd() {
                       <div className="flex items-center gap-3">
                         <span className="text-[var(--text-primary)]">{service.name}</span>
                         <span className={`text-xs px-2 py-1 ${service.included ? 'bg-green-500/20 text-green-500' : 'bg-yellow-500/20 text-yellow-500'}`}>
-                          {service.included ? 'Included' : `Extra: €${service.extraPrice || 0}`}
+                          {service.included ? t('postAd.included') : `${t('postAd.extra')}: €${service.extraPrice || 0}`}
                         </span>
                       </div>
                       <button
@@ -626,7 +630,7 @@ export default function PostAd() {
                         onClick={() => removeService(index)}
                         className="text-red-500 hover:text-red-600 transition-colors"
                       >
-                        Remove
+                        {t('postAd.remove')}
                       </button>
                     </div>
                   ))}
@@ -648,11 +652,11 @@ export default function PostAd() {
                     onChange={(e) => setNewService({ ...newService, included: e.target.checked })}
                     className="w-4 h-4"
                   />
-                  <span className="text-sm text-[var(--text-secondary)]">Included</span>
+                  <span className="text-sm text-[var(--text-secondary)]">{t('postAd.included')}</span>
                 </label>
                 <input
                   type="number"
-                  placeholder="Extra price (€)"
+                  placeholder={`${t('postAd.extra')} (€)`}
                   value={newService.extraPrice}
                   onChange={(e) => setNewService({ ...newService, extraPrice: e.target.value })}
                   disabled={newService.included}
@@ -663,24 +667,24 @@ export default function PostAd() {
                   onClick={addService}
                   className="px-4 py-2 bg-[var(--accent-pink)] text-white hover:opacity-90 transition-opacity"
                 >
-                  Add Service
+                  {t('postAd.addService')}
                 </button>
               </div>
             </div>
 
             {/* Rates */}
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-[var(--text-primary)] border-b border-[var(--border-primary)] pb-2 transition-colors">Rates</h2>
+              <h2 className="text-xl font-semibold text-[var(--text-primary)] border-b border-[var(--border-primary)] pb-2 transition-colors">{t('postAd.rates')}</h2>
               
               {formData.rates.length > 0 && (
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
                     <thead>
                       <tr className="bg-[var(--bg-secondary)] border-b border-[var(--border-primary)] transition-colors">
-                        <th className="py-3 px-4 text-left text-[var(--text-primary)] font-medium transition-colors">Time</th>
-                        <th className="py-3 px-4 text-center text-[var(--text-primary)] font-medium transition-colors">Incall (€)</th>
-                        <th className="py-3 px-4 text-center text-[var(--text-primary)] font-medium transition-colors">Outcall (€)</th>
-                        <th className="py-3 px-4 text-center text-[var(--text-primary)] font-medium transition-colors">Action</th>
+                        <th className="py-3 px-4 text-left text-[var(--text-primary)] font-medium transition-colors">{t('postAd.time')}</th>
+                        <th className="py-3 px-4 text-center text-[var(--text-primary)] font-medium transition-colors">{t('postAd.incall')} (€)</th>
+                        <th className="py-3 px-4 text-center text-[var(--text-primary)] font-medium transition-colors">{t('postAd.outcall')} (€)</th>
+                        <th className="py-3 px-4 text-center text-[var(--text-primary)] font-medium transition-colors">{t('postAd.action')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -695,7 +699,7 @@ export default function PostAd() {
                               onClick={() => removeRate(index)}
                               className="text-red-500 hover:text-red-600 transition-colors"
                             >
-                              Remove
+                              {t('postAd.remove')}
                             </button>
                           </td>
                         </tr>
@@ -732,7 +736,7 @@ export default function PostAd() {
                   onClick={addRate}
                   className="px-4 py-2 bg-[var(--accent-pink)] text-white hover:opacity-90 transition-opacity"
                 >
-                  Add Rate
+                  {t('postAd.addRate')}
                 </button>
               </div>
             </div>
@@ -741,18 +745,14 @@ export default function PostAd() {
               type="submit"
               className="w-full px-6 py-3 bg-[var(--accent-pink)] text-white hover:opacity-90 transition-opacity font-medium"
             >
-              Submit Ad
+              {t('postAd.submit')}
             </button>
           </form>
         )}
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-[var(--border-primary)] mt-20 transition-colors">
-        <div className="container mx-auto px-4 py-8 text-center text-[var(--text-tertiary)] text-sm transition-colors">
-          <p>© 2025 Escort.de. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
     </main>
   )
 }
