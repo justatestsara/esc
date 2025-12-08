@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useTheme } from '../../providers'
 
 interface Service {
@@ -35,6 +36,7 @@ interface Ad {
   description: string
   services?: Service[]
   rates?: Rate[]
+  images?: string[] // Base64 encoded images
   status: 'pending' | 'approved' | 'inactive'
   submittedAt: string
 }
@@ -56,6 +58,8 @@ export default function AdminDashboard() {
   const [ads, setAds] = useState<Ad[]>([])
   const [contactSubmissions, setContactSubmissions] = useState<ContactSubmission[]>([])
   const [loading, setLoading] = useState(true)
+  const [editingAd, setEditingAd] = useState<Ad | null>(null)
+  const [editFormData, setEditFormData] = useState<Partial<Ad>>({})
   const { theme, toggleTheme } = useTheme()
 
   useEffect(() => {
@@ -169,6 +173,43 @@ export default function AdminDashboard() {
     }
   }
 
+  const startEdit = (ad: Ad) => {
+    setEditingAd(ad)
+    setEditFormData({ ...ad })
+  }
+
+  const cancelEdit = () => {
+    setEditingAd(null)
+    setEditFormData({})
+  }
+
+  const saveEdit = () => {
+    if (!editingAd) return
+
+    const isSampleModel = SAMPLE_MODELS.some(model => model.id === editingAd.id)
+    
+    if (isSampleModel) {
+      alert('Sample models cannot be edited.')
+      return
+    }
+
+    const updatedAds = ads.map(ad => 
+      ad.id === editingAd.id ? { ...ad, ...editFormData } : ad
+    )
+    setAds(updatedAds)
+    
+    // Update localStorage
+    const updatedUserAds = updatedAds.filter(ad => !SAMPLE_MODELS.some(model => model.id === ad.id))
+    localStorage.setItem('submitted_ads', JSON.stringify(updatedUserAds))
+    
+    setEditingAd(null)
+    setEditFormData({})
+  }
+
+  const handleEditChange = (field: keyof Ad, value: any) => {
+    setEditFormData(prev => ({ ...prev, [field]: value }))
+  }
+
   if (loading) {
     return (
       <main className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors flex items-center justify-center">
@@ -228,33 +269,63 @@ export default function AdminDashboard() {
             <div className="space-y-4">
               {pendingAds.map(ad => (
                 <div key={ad.id} className="bg-[var(--bg-secondary)] border border-yellow-500/50 p-6 transition-colors">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-xl font-semibold text-[var(--text-primary)] transition-colors">
-                        {ad.name}, {typeof ad.age === 'number' ? ad.age : ad.age} - {ad.gender}
-                        {SAMPLE_MODELS.some(model => model.id === ad.id) && (
-                          <span className="ml-2 text-xs text-[var(--text-tertiary)]">(Sample Model)</span>
+                  <div className="flex gap-6 mb-4">
+                    {/* Images */}
+                    {ad.images && ad.images.length > 0 && (
+                      <div className="flex-shrink-0">
+                        <div className="grid grid-cols-2 gap-2 w-32">
+                          {ad.images.slice(0, 4).map((img, idx) => (
+                            <div key={idx} className="aspect-[3/4] overflow-hidden rounded bg-[var(--bg-tertiary)]">
+                              <img 
+                                src={img} 
+                                alt={`${ad.name} ${idx + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        {ad.images.length > 4 && (
+                          <p className="text-xs text-[var(--text-tertiary)] mt-2 text-center">
+                            +{ad.images.length - 4} more
+                          </p>
                         )}
-                      </h3>
-                      <p className="text-sm text-[var(--text-secondary)] transition-colors">
-                        {ad.city}, {ad.country} • Submitted: {new Date(ad.submittedAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => updateAdStatus(ad.id, 'approved')}
-                        className="px-4 py-2 bg-green-500 text-white hover:bg-green-600 transition-colors"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => updateAdStatus(ad.id, 'inactive')}
-                        className="px-4 py-2 bg-red-500 text-white hover:bg-red-600 transition-colors"
-                      >
-                        Reject
-                      </button>
-                    </div>
-                  </div>
+                      </div>
+                    )}
+                    
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h3 className="text-xl font-semibold text-[var(--text-primary)] transition-colors">
+                            {ad.name}, {typeof ad.age === 'number' ? ad.age : ad.age} - {ad.gender}
+                            {SAMPLE_MODELS.some(model => model.id === ad.id) && (
+                              <span className="ml-2 text-xs text-[var(--text-tertiary)]">(Sample Model)</span>
+                            )}
+                          </h3>
+                          <p className="text-sm text-[var(--text-secondary)] transition-colors">
+                            {ad.city}, {ad.country} • Submitted: {new Date(ad.submittedAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => startEdit(ad)}
+                            className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => updateAdStatus(ad.id, 'approved')}
+                            className="px-4 py-2 bg-green-500 text-white hover:bg-green-600 transition-colors"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => updateAdStatus(ad.id, 'inactive')}
+                            className="px-4 py-2 bg-red-500 text-white hover:bg-red-600 transition-colors"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="text-[var(--text-secondary)] transition-colors"><strong>Phone:</strong> {ad.phone}</p>
@@ -297,33 +368,63 @@ export default function AdminDashboard() {
             <div className="space-y-4">
               {approvedAds.map(ad => (
                 <div key={ad.id} className="bg-[var(--bg-secondary)] border border-green-500/50 p-6 transition-colors">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-xl font-semibold text-[var(--text-primary)] transition-colors">
-                        {ad.name}, {typeof ad.age === 'number' ? ad.age : ad.age} - {ad.gender}
-                        {SAMPLE_MODELS.some(model => model.id === ad.id) && (
-                          <span className="ml-2 text-xs text-[var(--text-tertiary)]">(Sample Model)</span>
+                  <div className="flex gap-6 mb-4">
+                    {/* Images */}
+                    {ad.images && ad.images.length > 0 && (
+                      <div className="flex-shrink-0">
+                        <div className="grid grid-cols-2 gap-2 w-32">
+                          {ad.images.slice(0, 4).map((img, idx) => (
+                            <div key={idx} className="aspect-[3/4] overflow-hidden rounded bg-[var(--bg-tertiary)]">
+                              <img 
+                                src={img} 
+                                alt={`${ad.name} ${idx + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        {ad.images.length > 4 && (
+                          <p className="text-xs text-[var(--text-tertiary)] mt-2 text-center">
+                            +{ad.images.length - 4} more
+                          </p>
                         )}
-                      </h3>
-                      <p className="text-sm text-[var(--text-secondary)] transition-colors">
-                        {ad.city}, {ad.country} • Approved: {new Date(ad.submittedAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => updateAdStatus(ad.id, 'inactive')}
-                        className="px-4 py-2 bg-yellow-500 text-white hover:bg-yellow-600 transition-colors"
-                      >
-                        Deactivate
-                      </button>
-                      <button
-                        onClick={() => deleteAd(ad.id)}
-                        className="px-4 py-2 bg-red-500 text-white hover:bg-red-600 transition-colors"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
+                      </div>
+                    )}
+                    
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h3 className="text-xl font-semibold text-[var(--text-primary)] transition-colors">
+                            {ad.name}, {typeof ad.age === 'number' ? ad.age : ad.age} - {ad.gender}
+                            {SAMPLE_MODELS.some(model => model.id === ad.id) && (
+                              <span className="ml-2 text-xs text-[var(--text-tertiary)]">(Sample Model)</span>
+                            )}
+                          </h3>
+                          <p className="text-sm text-[var(--text-secondary)] transition-colors">
+                            {ad.city}, {ad.country} • Approved: {new Date(ad.submittedAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => startEdit(ad)}
+                            className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => updateAdStatus(ad.id, 'inactive')}
+                            className="px-4 py-2 bg-yellow-500 text-white hover:bg-yellow-600 transition-colors"
+                          >
+                            Deactivate
+                          </button>
+                          <button
+                            onClick={() => deleteAd(ad.id)}
+                            className="px-4 py-2 bg-red-500 text-white hover:bg-red-600 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="text-[var(--text-secondary)] transition-colors"><strong>Phone:</strong> {ad.phone}</p>
@@ -351,31 +452,63 @@ export default function AdminDashboard() {
             <div className="space-y-4">
               {inactiveAds.map(ad => (
                 <div key={ad.id} className="bg-[var(--bg-secondary)] border border-red-500/50 p-6 transition-colors">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-xl font-semibold text-[var(--text-primary)] transition-colors">
-                        {ad.name}, {typeof ad.age === 'number' ? ad.age : ad.age} - {ad.gender}
-                        {SAMPLE_MODELS.some(model => model.id === ad.id) && (
-                          <span className="ml-2 text-xs text-[var(--text-tertiary)]">(Sample Model)</span>
+                  <div className="flex gap-6 mb-4">
+                    {/* Images */}
+                    {ad.images && ad.images.length > 0 && (
+                      <div className="flex-shrink-0">
+                        <div className="grid grid-cols-2 gap-2 w-32">
+                          {ad.images.slice(0, 4).map((img, idx) => (
+                            <div key={idx} className="aspect-[3/4] overflow-hidden rounded bg-[var(--bg-tertiary)]">
+                              <img 
+                                src={img} 
+                                alt={`${ad.name} ${idx + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        {ad.images.length > 4 && (
+                          <p className="text-xs text-[var(--text-tertiary)] mt-2 text-center">
+                            +{ad.images.length - 4} more
+                          </p>
                         )}
-                      </h3>
-                      <p className="text-sm text-[var(--text-secondary)] transition-colors">
-                        {ad.city}, {ad.country} • Inactive since: {new Date(ad.submittedAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => updateAdStatus(ad.id, 'approved')}
-                        className="px-4 py-2 bg-green-500 text-white hover:bg-green-600 transition-colors"
-                      >
-                        Reactivate
-                      </button>
-                      <button
-                        onClick={() => deleteAd(ad.id)}
-                        className="px-4 py-2 bg-red-500 text-white hover:bg-red-600 transition-colors"
-                      >
-                        Delete
-                      </button>
+                      </div>
+                    )}
+                    
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h3 className="text-xl font-semibold text-[var(--text-primary)] transition-colors">
+                            {ad.name}, {typeof ad.age === 'number' ? ad.age : ad.age} - {ad.gender}
+                            {SAMPLE_MODELS.some(model => model.id === ad.id) && (
+                              <span className="ml-2 text-xs text-[var(--text-tertiary)]">(Sample Model)</span>
+                            )}
+                          </h3>
+                          <p className="text-sm text-[var(--text-secondary)] transition-colors">
+                            {ad.city}, {ad.country} • Inactive since: {new Date(ad.submittedAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => startEdit(ad)}
+                            className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => updateAdStatus(ad.id, 'approved')}
+                            className="px-4 py-2 bg-green-500 text-white hover:bg-green-600 transition-colors"
+                          >
+                            Reactivate
+                          </button>
+                          <button
+                            onClick={() => deleteAd(ad.id)}
+                            className="px-4 py-2 bg-red-500 text-white hover:bg-red-600 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -470,6 +603,240 @@ export default function AdminDashboard() {
           </div>
         )}
       </div>
+
+      {/* Edit Modal */}
+      {editingAd && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-semibold text-[var(--text-primary)] transition-colors">
+                  Edit Ad: {editingAd.name}
+                </h2>
+                <button
+                  onClick={cancelEdit}
+                  className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Basic Info */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-[var(--text-secondary)] mb-2">Name *</label>
+                    <input
+                      type="text"
+                      value={editFormData.name || ''}
+                      onChange={(e) => handleEditChange('name', e.target.value)}
+                      className="w-full px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-[var(--text-secondary)] mb-2">Age *</label>
+                    <input
+                      type="text"
+                      value={editFormData.age || ''}
+                      onChange={(e) => handleEditChange('age', e.target.value)}
+                      className="w-full px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-[var(--text-secondary)] mb-2">Gender *</label>
+                    <select
+                      value={editFormData.gender || 'female'}
+                      onChange={(e) => handleEditChange('gender', e.target.value)}
+                      className="w-full px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] transition-colors"
+                    >
+                      <option value="female">Female</option>
+                      <option value="male">Male</option>
+                      <option value="trans">Trans</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-[var(--text-secondary)] mb-2">City *</label>
+                    <input
+                      type="text"
+                      value={editFormData.city || ''}
+                      onChange={(e) => handleEditChange('city', e.target.value)}
+                      className="w-full px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-[var(--text-secondary)] mb-2">Country *</label>
+                    <input
+                      type="text"
+                      value={editFormData.country || ''}
+                      onChange={(e) => handleEditChange('country', e.target.value)}
+                      className="w-full px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-[var(--text-secondary)] mb-2">Phone *</label>
+                    <input
+                      type="text"
+                      value={editFormData.phone || ''}
+                      onChange={(e) => handleEditChange('phone', e.target.value)}
+                      className="w-full px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-[var(--text-secondary)] mb-2">Email</label>
+                    <input
+                      type="email"
+                      value={editFormData.email || ''}
+                      onChange={(e) => handleEditChange('email', e.target.value)}
+                      className="w-full px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-[var(--text-secondary)] mb-2">WhatsApp</label>
+                    <input
+                      type="text"
+                      value={editFormData.whatsapp || ''}
+                      onChange={(e) => handleEditChange('whatsapp', e.target.value)}
+                      className="w-full px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-[var(--text-secondary)] mb-2">Telegram</label>
+                    <input
+                      type="text"
+                      value={editFormData.telegram || ''}
+                      onChange={(e) => handleEditChange('telegram', e.target.value)}
+                      className="w-full px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-[var(--text-secondary)] mb-2">Instagram</label>
+                    <input
+                      type="text"
+                      value={editFormData.instagram || ''}
+                      onChange={(e) => handleEditChange('instagram', e.target.value)}
+                      className="w-full px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-[var(--text-secondary)] mb-2">Twitter</label>
+                    <input
+                      type="text"
+                      value={editFormData.twitter || ''}
+                      onChange={(e) => handleEditChange('twitter', e.target.value)}
+                      className="w-full px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-[var(--text-secondary)] mb-2">Hair Color</label>
+                    <input
+                      type="text"
+                      value={editFormData.hairColor || ''}
+                      onChange={(e) => handleEditChange('hairColor', e.target.value)}
+                      className="w-full px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] transition-colors"
+                    />
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="block text-sm text-[var(--text-secondary)] mb-2">Description *</label>
+                  <textarea
+                    value={editFormData.description || ''}
+                    onChange={(e) => handleEditChange('description', e.target.value)}
+                    rows={6}
+                    className="w-full px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] transition-colors resize-none"
+                  />
+                </div>
+
+                {/* Languages */}
+                <div>
+                  <label className="block text-sm text-[var(--text-secondary)] mb-2">Languages (comma-separated)</label>
+                  <input
+                    type="text"
+                    value={Array.isArray(editFormData.languages) ? editFormData.languages.join(', ') : ''}
+                    onChange={(e) => handleEditChange('languages', e.target.value.split(',').map(l => l.trim()).filter(l => l))}
+                    className="w-full px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] transition-colors"
+                    placeholder="German, English, French"
+                  />
+                </div>
+
+                {/* Images Preview */}
+                {editFormData.images && editFormData.images.length > 0 && (
+                  <div>
+                    <label className="block text-sm text-[var(--text-secondary)] mb-2">Images ({editFormData.images.length})</label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {editFormData.images.map((img, idx) => (
+                        <div key={idx} className="aspect-[3/4] overflow-hidden rounded bg-[var(--bg-tertiary)] relative group">
+                          <img src={img} alt={`Image ${idx + 1}`} className="w-full h-full object-cover" />
+                          <button
+                            onClick={() => {
+                              const newImages = [...(editFormData.images || [])]
+                              newImages.splice(idx, 1)
+                              handleEditChange('images', newImages)
+                            }}
+                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Services */}
+                {editFormData.services && editFormData.services.length > 0 && (
+                  <div>
+                    <label className="block text-sm text-[var(--text-secondary)] mb-2">Services ({editFormData.services.length})</label>
+                    <div className="space-y-2">
+                      {editFormData.services.map((service, idx) => (
+                        <div key={idx} className="flex items-center gap-2 p-2 bg-[var(--bg-secondary)] rounded">
+                          <span className="flex-1 text-[var(--text-primary)]">{service.name}</span>
+                          <span className="text-xs text-[var(--text-secondary)]">
+                            {service.included ? 'Included' : `Extra: €${service.extraPrice || 0}`}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Rates */}
+                {editFormData.rates && editFormData.rates.length > 0 && (
+                  <div>
+                    <label className="block text-sm text-[var(--text-secondary)] mb-2">Rates ({editFormData.rates.length})</label>
+                    <div className="space-y-2">
+                      {editFormData.rates.map((rate, idx) => (
+                        <div key={idx} className="flex items-center gap-2 p-2 bg-[var(--bg-secondary)] rounded text-sm text-[var(--text-primary)]">
+                          <span className="flex-1">{rate.time}</span>
+                          <span>Incall: €{rate.incall}</span>
+                          <span>Outcall: €{rate.outcall}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex gap-4 pt-4 border-t border-[var(--border-primary)]">
+                  <button
+                    onClick={saveEdit}
+                    className="px-6 py-2 bg-green-500 text-white hover:bg-green-600 transition-colors"
+                  >
+                    Save Changes
+                  </button>
+                  <button
+                    onClick={cancelEdit}
+                    className="px-6 py-2 bg-gray-500 text-white hover:bg-gray-600 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
