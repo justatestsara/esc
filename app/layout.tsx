@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { Montserrat, Open_Sans } from 'next/font/google'
 import { ThemeProvider, LanguageProvider } from './providers'
 import './globals.css'
@@ -29,6 +30,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="de" className={`${montserrat.variable} ${openSans.variable}`}>
+      <head>
+        <Script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id="7ce2a2a1-1c8f-4391-8993-14b027d37878"
+          strategy="afterInteractive"
+        />
+      </head>
       <body>
         <ThemeProvider>
           <LanguageProvider>{children}</LanguageProvider>
