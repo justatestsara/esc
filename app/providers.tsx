@@ -144,8 +144,8 @@ const translations: Record<Language, Record<string, string>> = {
     'postAd.action': 'Aktion',
     
     // Filters
-    'filters.girls': 'Mädchen',
-    'filters.guys': 'Jungs',
+    'filters.girls': 'Frauen',
+    'filters.guys': 'Männer',
     'filters.trans': 'Trans',
     'filters.countries': 'Länder',
     'filters.cities': 'Städte',
