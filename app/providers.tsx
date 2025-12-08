@@ -114,7 +114,7 @@ const translations: Record<Language, Record<string, string>> = {
     'ad.back': 'Back',
     'ad.about': 'About',
     'ad.contactInfo': 'Contact Information',
-    'postAd.phone': 'Phone',
+    'ad.phone': 'Phone',
     'ad.whatsapp': 'WhatsApp',
     'ad.telegram': 'Telegram',
     'ad.email': 'Email',
