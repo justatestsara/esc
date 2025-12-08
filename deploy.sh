@@ -28,9 +28,9 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Install/update dependencies
+# Install/update dependencies (including devDependencies for build)
 echo -e "${YELLOW}Installing dependencies...${NC}"
-npm install --production
+npm install
 
 # Build the application
 echo -e "${YELLOW}Building Next.js application...${NC}"

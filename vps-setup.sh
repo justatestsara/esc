@@ -88,7 +88,7 @@ fi
 
 # Step 7: Install dependencies and build
 echo -e "${YELLOW}[7/8] Installing dependencies and building application...${NC}"
-npm install --production
+npm install
 
 # Build the application
 echo "Building Next.js application..."

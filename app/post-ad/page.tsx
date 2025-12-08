@@ -60,6 +60,37 @@ export default function PostAd() {
   const [newRate, setNewRate] = useState({ time: '', incall: '', outcall: '' })
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
 
+  const { theme, toggleTheme } = useTheme()
+  const { t } = useLanguage()
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {}
+    
+    if (!formData.name.trim()) {
+      newErrors.name = t('postAd.nameRequired')
+    }
+    if (!formData.country) {
+      newErrors.country = t('postAd.countryRequired')
+    }
+    if (!formData.city.trim()) {
+      newErrors.city = t('postAd.cityRequired')
+    }
+    if (!formData.age || parseInt(formData.age) < 18) {
+      newErrors.age = t('postAd.ageInvalid')
+    }
+    if (!formData.phone.trim()) {
+      newErrors.phone = t('postAd.nameRequired')
+    }
+    if (!formData.description.trim() || formData.description.trim().length < 50) {
+      newErrors.description = t('postAd.descriptionMinLength')
+    }
+    if (formData.images.length < 3) {
+      newErrors.images = t('postAd.imagesRequired')
+    }
+    
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -221,9 +252,6 @@ export default function PostAd() {
     })
   }
 
-  const { theme, toggleTheme } = useTheme()
-  const { t } = useLanguage()
-
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
     
@@ -252,6 +280,8 @@ export default function PostAd() {
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
+
+  return (
     <main className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors">
       {/* Header */}
       <header className="border-b border-[var(--border-primary)] sticky top-0 bg-[var(--bg-primary)]/95 backdrop-blur-sm z-50 transition-colors">
