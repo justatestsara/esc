@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -26,7 +26,7 @@ export default function AdminLogin() {
     e.preventDefault()
     setError('')
     
-    if (username === 'admin' && password === 'admin') {
+    if (username === 'admin' && password === 'Escort123#888') {
       sessionStorage.setItem('admin_logged_in', 'true')
       router.push('/adm2211/dashboard')
     } else {
