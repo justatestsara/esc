@@ -353,6 +353,8 @@ export default function AdminDashboard() {
                       <p className="text-[var(--text-secondary)] transition-colors"><strong>Rates:</strong> {ad.rates.length} rate(s)</p>
                     </div>
                   )}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -425,16 +427,18 @@ export default function AdminDashboard() {
                           </button>
                         </div>
                       </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-[var(--text-secondary)] transition-colors"><strong>Phone:</strong> {ad.phone}</p>
-                      {ad.email && <p className="text-[var(--text-secondary)] transition-colors"><strong>Email:</strong> {ad.email}</p>}
-                    </div>
-                    <div>
-                      {ad.hairColor && <p className="text-[var(--text-secondary)] transition-colors"><strong>Hair Color:</strong> {ad.hairColor}</p>}
-                      {ad.languages && ad.languages.length > 0 && (
-                        <p className="text-[var(--text-secondary)] transition-colors"><strong>Languages:</strong> {ad.languages.join(', ')}</p>
-                      )}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p className="text-[var(--text-secondary)] transition-colors"><strong>Phone:</strong> {ad.phone}</p>
+                          {ad.email && <p className="text-[var(--text-secondary)] transition-colors"><strong>Email:</strong> {ad.email}</p>}
+                        </div>
+                        <div>
+                          {ad.hairColor && <p className="text-[var(--text-secondary)] transition-colors"><strong>Hair Color:</strong> {ad.hairColor}</p>}
+                          {ad.languages && ad.languages.length > 0 && (
+                            <p className="text-[var(--text-secondary)] transition-colors"><strong>Languages:</strong> {ad.languages.join(', ')}</p>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
