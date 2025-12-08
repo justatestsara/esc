@@ -123,25 +123,19 @@ export default function AdDetail() {
           })
         },
         () => {
-          fetch('https://ipapi.co/json/')
-            .then(res => res.json())
-            .then(data => {
-              setUserLocation({
-                lat: data.latitude || 52.52,
-                lng: data.longitude || 13.405,
-              })
-            })
+          // Default to Berlin if geolocation denied
+          setUserLocation({
+            lat: 52.52,
+            lng: 13.405,
+          })
         }
       )
     } else {
-      fetch('https://ipapi.co/json/')
-        .then(res => res.json())
-        .then(data => {
-          setUserLocation({
-            lat: data.latitude || 52.52,
-            lng: data.longitude || 13.405,
-          })
-        })
+      // Default to Berlin if geolocation not available
+      setUserLocation({
+        lat: 52.52,
+        lng: 13.405,
+      })
     }
   }, [params.id])
 

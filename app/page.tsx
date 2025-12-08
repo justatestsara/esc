@@ -105,49 +105,27 @@ function HomeContent() {
 
   // Get user location
   useEffect(() => {
-    // First try IP-based location to get city/country
-    fetch('https://ipapi.co/json/')
-      .then(res => res.json())
-      .then(async (ipData) => {
-        // If geolocation is available, use it for more accurate coordinates
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              setUserLocation({
-                lat: position.coords.latitude,
-                lng: position.coords.longitude,
-                city: ipData.city,
-                country: ipData.country_name,
-              })
-              setLoading(false)
-            },
-            () => {
-              // Use IP-based coordinates if geolocation denied
-              setUserLocation({
-                lat: ipData.latitude || 52.52,
-                lng: ipData.longitude || 13.405,
-                city: ipData.city,
-                country: ipData.country_name,
-              })
-              setLoading(false)
-            }
-          )
-        } else {
-          // Use IP-based location
+    // Try browser geolocation if available
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
           setUserLocation({
-            lat: ipData.latitude || 52.52,
-            lng: ipData.longitude || 13.405,
-            city: ipData.city,
-            country: ipData.country_name,
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
           })
           setLoading(false)
+        },
+        () => {
+          // Default to Berlin if geolocation denied
+          setUserLocation({ lat: 52.52, lng: 13.405 })
+          setLoading(false)
         }
-      })
-      .catch(() => {
-        // Default to Berlin if all fails
-        setUserLocation({ lat: 52.52, lng: 13.405, city: 'Berlin', country: 'Germany' })
-        setLoading(false)
-      })
+      )
+    } else {
+      // Default to Berlin if geolocation not available
+      setUserLocation({ lat: 52.52, lng: 13.405 })
+      setLoading(false)
+    }
   }, [])
 
   // Calculate distances and sort models
