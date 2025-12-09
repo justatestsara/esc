@@ -114,29 +114,11 @@ export default function AdDetail() {
     setModel(foundModel || null)
 
     // Get user location for distance calculation
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          })
-        },
-        () => {
-          // Default to Berlin if geolocation denied
-          setUserLocation({
-            lat: 52.52,
-            lng: 13.405,
-          })
-        }
-      )
-    } else {
-      // Default to Berlin if geolocation not available
-      setUserLocation({
-        lat: 52.52,
-        lng: 13.405,
-      })
-    }
+    // Default to Berlin (no geolocation request)
+    setUserLocation({
+      lat: 52.52,
+      lng: 13.405,
+    })
   }, [params.id])
 
   useEffect(() => {

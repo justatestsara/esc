@@ -105,27 +105,9 @@ function HomeContent() {
 
   // Get user location
   useEffect(() => {
-    // Try browser geolocation if available
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          })
-          setLoading(false)
-        },
-        () => {
-          // Default to Berlin if geolocation denied
-          setUserLocation({ lat: 52.52, lng: 13.405 })
-          setLoading(false)
-        }
-      )
-    } else {
-      // Default to Berlin if geolocation not available
-      setUserLocation({ lat: 52.52, lng: 13.405 })
-      setLoading(false)
-    }
+    // Default to Berlin (no geolocation request)
+    setUserLocation({ lat: 52.52, lng: 13.405 })
+    setLoading(false)
   }, [])
 
   // Calculate distances and sort models
