@@ -26,6 +26,14 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
+.env.production
+.env.development
+
+# security
+*.key
+*.pem
+secrets/
 
 # vercel
 .vercel

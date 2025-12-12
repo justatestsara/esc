@@ -1,23 +1,21 @@
-import type { Metadata } from 'next'
-import ImprintClient from './ImprintClient'
+'use client'
 
-export const metadata: Metadata = {
-  title: 'Contact Us - Legal Imprint',
-  description: 'Contact Escort.de for legal inquiries, reports, or feedback. Find our contact information and legal imprint details.',
-  openGraph: {
-    title: 'Contact Us - Escort.de',
-    description: 'Contact Escort.de for legal inquiries, reports, or feedback.',
-    url: 'https://escort.de/legal/imprint',
-  },
-  alternates: {
-    canonical: 'https://escort.de/legal/imprint',
-  },
+import { useState } from 'react'
+import Link from 'next/link'
+import { useTheme, useLanguage } from '../../providers'
+import Footer from '../../components/Footer'
+import LanguageSwitcher from '../../components/LanguageSwitcher'
+
+interface ContactSubmission {
+  id: string
+  name: string
+  subject: string
+  description: string
+  submittedAt: string
+  status: 'pending' | 'reviewed'
 }
 
-export default function Imprint() {
-  return <ImprintClient />
-}
-
+export default function ImprintClient() {
   const { theme, toggleTheme } = useTheme()
   const { t } = useLanguage()
   const [formData, setFormData] = useState({

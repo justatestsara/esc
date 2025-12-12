@@ -63,14 +63,28 @@ export default function AdminDashboard() {
   const { theme, toggleTheme } = useTheme()
 
   useEffect(() => {
-    // Check if logged in
-    if (typeof window !== 'undefined') {
-      const isLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true'
-      if (!isLoggedIn) {
+    // Check if logged in via API
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/verify')
+        if (!response.ok) {
+          router.push('/adm2211')
+          return
+        }
+        const data = await response.json()
+        if (!data.authenticated) {
+          router.push('/adm2211')
+          return
+        }
+        // Authenticated, load ads
+        loadAds()
+      } catch (error) {
         router.push('/adm2211')
-        return
       }
-      loadAds()
+    }
+    
+    if (typeof window !== 'undefined') {
+      checkAuth()
     }
   }, [router])
 
@@ -138,8 +152,12 @@ export default function AdminDashboard() {
     }
   }
 
-  const handleLogout = () => {
-    sessionStorage.removeItem('admin_logged_in')
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
     router.push('/adm2211')
   }
 

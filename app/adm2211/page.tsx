@@ -12,25 +12,59 @@ export default function AdminLogin() {
   const [error, setError] = useState('')
   const { theme, toggleTheme } = useTheme()
 
+  const [loading, setLoading] = useState(false)
+
   useEffect(() => {
-    // Check if already logged in
-    if (typeof window !== 'undefined') {
-      const isLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true'
-      if (isLoggedIn) {
-        router.push('/adm2211/dashboard')
+    // Check if already logged in via API
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/verify')
+        if (response.ok) {
+          const data = await response.json()
+          if (data.authenticated) {
+            router.push('/adm2211/dashboard')
+          }
+        }
+      } catch (error) {
+        // Not authenticated, stay on login page
       }
+    }
+    
+    if (typeof window !== 'undefined') {
+      checkAuth()
     }
   }, [router])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setLoading(true)
     
-    if (username === 'admin' && password === 'Escort123#888') {
-      sessionStorage.setItem('admin_logged_in', 'true')
-      router.push('/adm2211/dashboard')
-    } else {
-      setError('Invalid username or password')
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      })
+      
+      const data = await response.json()
+      
+      if (response.ok && data.success) {
+        // Login successful, redirect to dashboard
+        router.push('/adm2211/dashboard')
+      } else {
+        // Login failed
+        setError(data.error || 'Invalid username or password')
+        if (data.remaining !== undefined) {
+          setError(`${data.error} (${data.remaining} attempts remaining)`)
+        }
+      }
+    } catch (error) {
+      setError('Login failed. Please try again.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -81,9 +115,10 @@ export default function AdminLogin() {
 
           <button
             type="submit"
-            className="w-full px-6 py-3 bg-[var(--accent-pink)] text-white hover:opacity-90 transition-opacity font-medium"
+            disabled={loading}
+            className="w-full px-6 py-3 bg-[var(--accent-pink)] text-white hover:opacity-90 transition-opacity font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Login
+            {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
 

@@ -1,26 +1,41 @@
-import type { Metadata } from 'next'
-import PostAdClient from './PostAdClient'
+'use client'
 
-export const metadata: Metadata = {
-  title: 'Post Your Ad',
-  description: 'Post your escort service ad on Escort.de. Reach thousands of clients across Germany, Austria, Switzerland and Europe. Free ad submission with photo upload.',
-  openGraph: {
-    title: 'Post Your Ad - Escort.de',
-    description: 'Post your escort service ad on Escort.de. Reach thousands of clients across Europe.',
-    url: 'https://escort.de/post-ad',
-  },
-  alternates: {
-    canonical: 'https://escort.de/post-ad',
-  },
-  robots: {
-    index: false,
-    follow: true,
-  },
+import { useState } from 'react'
+import Link from 'next/link'
+import { useTheme, useLanguage } from '../providers'
+import Footer from '../components/Footer'
+import LanguageSwitcher from '../components/LanguageSwitcher'
+
+const ALLOWED_COUNTRIES = [
+  'Germany',
+  'Austria',
+  'Switzerland',
+  'Czech Republic',
+  'Netherlands',
+  'Belgium',
+  'France',
+  'Poland',
+  'Denmark',
+  'Luxembourg',
+]
+
+const HAIR_COLORS = ['Blonde', 'Brown', 'Black', 'Red', 'Auburn', 'Other']
+const COMMON_LANGUAGES = ['German', 'English', 'French', 'Spanish', 'Italian', 'Dutch', 'Polish', 'Czech', 'Russian', 'Other']
+
+interface Service {
+  name: string
+  included: boolean
+  extraPrice?: number
 }
 
-export default function PostAd() {
-  return <PostAdClient />
+interface Rate {
+  time: string
+  incall: number
+  outcall: number
 }
+
+export default function PostAdClient() {
+  const [formData, setFormData] = useState({
     name: '',
     age: '',
     gender: 'female' as 'female' | 'male' | 'trans',
